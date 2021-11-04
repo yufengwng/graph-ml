@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 
 
-cites = pd.read_csv('~/dataset/cora/cites.csv')
-labels = pd.read_csv('~/dataset/cora/paper.csv')
-content = pd.read_csv('~/dataset/cora/content.csv')
+cites = pd.read_csv('cora/cites.csv')
+labels = pd.read_csv('cora/paper.csv')
+content = pd.read_csv('cora/content.csv')
 
 labels.sort_values('paper_id', inplace=True)
 papers = labels['paper_id']
@@ -28,6 +28,6 @@ nodes = pd.DataFrame(np.array(rows), columns=columns)
 edges = cites.reindex(columns=['citing_paper_id', 'cited_paper_id'])
 edges.sort_values('citing_paper_id', inplace=True)
 
-nodes.to_csv('data/cora-nodes.csv', index=False)
-edges.to_csv('data/cora-edges.csv', index=False)
-labels.to_csv('data/cora-labels.csv', index=False)
+nodes.to_csv('cora-nodes.csv', index=False)
+edges.to_csv('cora-edges.csv', index=False)
+labels.to_csv('cora-labels.csv', index=False)
