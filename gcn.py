@@ -9,7 +9,8 @@ class GraphConvNet(nn.Module):
     """
 
     def __init__(self, adjacency_mat, num_layers: int,
-                in_features: int, out_features: int, hidden_features=16):
+                in_features: int, out_features: int,
+                hidden_features=16, is_sparse=False):
         super().__init__()
 
         # stack:
@@ -32,6 +33,9 @@ class GraphConvNet(nn.Module):
         deg_mat = torch.diag(adj_eye.sum(dim=1))
         deg_inv = deg_mat.inverse().sqrt()
         self.adj_norm = deg_inv @ (adj_eye @ deg_inv)
+
+        if is_sparse:
+            self.adj_norm = self.adj_norm.to_sparse()
 
         layers = []
         if num_layers == 1:
