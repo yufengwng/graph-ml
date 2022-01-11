@@ -45,6 +45,19 @@ def plot_graph(adj: Tensor, points: Tensor, colors: Tensor = None):
     plt.show()
 
 
+def plot_pca(features: Tensor, colors: Tensor = None):
+    svd = torch.pca_lowrank(features)
+    eigenvecs = svd[2]
+
+    components = features @ eigenvecs[:, :2]
+    xs = components[:, 0]
+    ys = components[:, 1]
+
+    area = (torch.zeros(features.shape[0]) + 10) ** 2
+    plt.scatter(xs, ys, s=area, c=colors)
+    plt.show()
+
+
 class Cora(NamedTuple):
     df_nodes: DataFrame
     df_edges: DataFrame
