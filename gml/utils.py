@@ -1,8 +1,8 @@
-"""Utilities that supports other modules."""
+"""Utilities that support other modules."""
 
 import torch
-from torch import Tensor
 
+from torch import Tensor
 from typing import Any
 
 

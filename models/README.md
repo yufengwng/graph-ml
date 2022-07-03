@@ -1,0 +1,9 @@
+## Requirements
+
+To run model scripts, install additional dependencies:
+
+```
+matplotlib==3.5.2
+pandas==1.4.3
+```
+
