@@ -48,6 +48,7 @@ def plot_graph(adj: Tensor, points: Tensor, colors: Tensor = None):
 
 
 def train(model: gml.GCN, g: gml.Graph, adj: Tensor, loss_fn: _Loss, optimizer: _Optimizer) -> Tensor:
+    model.train()
     optimizer.zero_grad()
     pred = model(adj, g.ndata.feats)
     loss = loss_fn(pred, g.ndata.label)
@@ -57,6 +58,7 @@ def train(model: gml.GCN, g: gml.Graph, adj: Tensor, loss_fn: _Loss, optimizer: 
 
 
 def evaluate(model: gml.GCN, g: gml.Graph, adj: Tensor) -> float:
+    model.eval()
     with torch.no_grad():
         y_pred = model(adj, g.ndata.feats).argmax(dim=1)
         correct = (y_pred == g.ndata.label).type(torch.float).sum().item()
