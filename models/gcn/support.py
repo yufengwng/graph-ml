@@ -1,16 +1,72 @@
+import logging
+import random
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__ + '/../../..').resolve()))
-import gml  # Re-export library.
-
 
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 
+import loader
+
+
+# Re-export library.
+sys.path.append(str(Path(__file__ + '/../../..').resolve()))
+import gml
+
+
+from argparse import Namespace
+from logging import Logger
 from torch import Tensor
-from typing import TypeAlias
-_Loss: TypeAlias = torch.nn.Module
-_Optimizer: TypeAlias = torch.optim.Optimizer
+from typing import Optional, TypeAlias
+from gml.typing import Device
+LossFn: TypeAlias = torch.nn.Module
+Optimizer: TypeAlias = torch.optim.Optimizer
+
+
+def setup_logging(args: Namespace) -> Logger:
+    logging.basicConfig(level=logging.INFO,
+        format='%(asctime)s.%(msecs)03d|%(name)s|%(levelname)s|%(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S')
+    logger = logging.getLogger()
+    logger.info('args: %s', args)
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+    return logger
+
+
+def setup_seed(args: Namespace, logger: Optional[Logger] = None):
+    if args.seed > -1:
+        random.seed(args.seed)
+        np.random.seed(args.seed)
+        torch.manual_seed(args.seed)
+        torch.cuda.manual_seed_all(args.seed)
+        if logger is not None:
+            logger.info('configured random seed with: %d', args.seed)
+
+
+def build_device(args: Namespace, logger: Optional[Logger] = None) -> Device:
+    if torch.cuda.is_available() and args.gpu > -1:
+        device = torch.device('cuda', args.gpu)
+    else:
+        device = torch.device('cpu')
+    if logger is not None:
+        logger.info('using device: %s', device)
+    return device
+
+
+def load_data(device: Device, args: Namespace, logger: Optional[Logger] = None) -> tuple[gml.Graph, int]:
+    if logger is not None:
+        logger.info('loading dataset...')
+    if args.data == 'cora':
+        data = loader.load_cora(Path(args.path))
+    else:
+        print('currently only supports cora dataset')
+        sys.exit(0)
+    g = gml.Graph(data.num_nodes, data.edges, device=device)
+    g.ndata.feats = data.nfeats
+    g.ndata.label = data.labels
+    return g, data.num_classes
 
 
 def gen_rand_edges(num_nodes: int, directed=False) -> list[tuple[int, int]]:
@@ -47,11 +103,11 @@ def plot_graph(adj: Tensor, points: Tensor, colors: Tensor = None):
     plt.show()
 
 
-def train(model: gml.GCN, g: gml.Graph, adj: Tensor, loss_fn: _Loss, optimizer: _Optimizer) -> Tensor:
+def train(model: gml.GCN, g: gml.Graph, adj: Tensor, criterion: LossFn, optimizer: Optimizer) -> Tensor:
     model.train()
-    optimizer.zero_grad()
     pred = model(adj, g.ndata.feats)
-    loss = loss_fn(pred, g.ndata.label)
+    loss = criterion(pred, g.ndata.label)
+    optimizer.zero_grad()
     loss.backward()
     optimizer.step()
     return loss

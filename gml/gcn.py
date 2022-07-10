@@ -3,8 +3,7 @@
 import torch
 from torch import nn
 
-from torch import Tensor
-from typing import Optional
+from .typing import Optional, Tensor
 
 
 class GCN(nn.Module):

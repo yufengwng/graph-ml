@@ -2,9 +2,7 @@
 
 import torch
 
-from torch import Tensor
-from typing import Any
-
+from .typing import Any, Tensor
 
 class Namespace(object):
     """A simple container that allows accessing values via attributes.

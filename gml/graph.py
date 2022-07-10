@@ -1,13 +1,9 @@
-"""Module for representing graphs."""
+"""Module for operating on graphs."""
 
 import torch
 
+from .typing import Device, EdgeList, Tensor
 from .utils import Namespace
-
-from torch import Tensor
-from typing import Iterable, TypeAlias
-_Edge: TypeAlias = Iterable[tuple[int, int]]
-_Device: TypeAlias = torch.device | str
 
 
 class Graph(object):
@@ -31,7 +27,7 @@ class Graph(object):
     ----------------------------------------------------------------------
     """
 
-    def __init__(self, num_nodes: int, edges: _Edge, device: _Device = 'cpu'):
+    def __init__(self, num_nodes: int, edges: EdgeList, device: Device = 'cpu'):
         """
         # Parameters
 
@@ -77,3 +73,9 @@ class Graph(object):
             for dst in neighbors:
                 adj_mtx[src, dst] = 1
         return adj_mtx
+
+
+class NeighborSampler(object):
+
+    def __init__(self):
+        pass
